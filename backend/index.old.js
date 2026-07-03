@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
@@ -11,7 +12,7 @@ app.use(express.json());
 app.use(cors());
 
 // Database Connection With MongoDB
-mongoose.connect("mongodb+srv://shreyasharmavr:shreyasharmavr18@cluster0.be78j07.mongodb.net/e-commerce");
+mongoose.connect(process.env.MONGODB_URI || "mongodb+srv://shreyasharmavr:shreyasharmavr18@cluster0.be78j07.mongodb.net/e-commerce");
 
 // paste your mongoDB Connection string above with password
 // password should not contain '@' special character
@@ -241,7 +242,10 @@ app.post("/removeproduct", async (req, res) => {
 });
 
 // Starting Express Server
-app.listen(port, (error) => {
-  if (!error) console.log("Server Running on port " + port);
-  else console.log("Error : ", error);
-});
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(port, (error) => {
+    if (!error) console.log("Server Running on port " + port);
+    else console.log("Error : ", error);
+  });
+}
+module.exports = app;
