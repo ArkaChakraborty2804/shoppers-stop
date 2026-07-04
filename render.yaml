@@ -44,7 +44,8 @@ services:
       - key: MONGODB_URI
         sync: false
       - key: REDIS_URL
-        fromDatabase:
+        fromService:
+          type: redis
           name: redis-cache
           property: connectionString
 
@@ -60,7 +61,6 @@ services:
       - key: JWT_SECRET
         value: secret_ecom
 
-databases:
   - type: redis
     name: redis-cache
     ipAllowList: []
