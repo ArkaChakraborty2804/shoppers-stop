@@ -1,15 +1,18 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "index.js",
-      "use": "@vercel/node"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "index.js"
-    }
+  "rewrites": [
+    { "source": "/login", "destination": "/api/auth.js" },
+    { "source": "/signup", "destination": "/api/auth.js" },
+    { "source": "/allproducts", "destination": "/api/product.js" },
+    { "source": "/newcollections", "destination": "/api/product.js" },
+    { "source": "/popularinwomen", "destination": "/api/product.js" },
+    { "source": "/relatedproducts", "destination": "/api/product.js" },
+    { "source": "/addproduct", "destination": "/api/product.js" },
+    { "source": "/removeproduct", "destination": "/api/product.js" },
+    { "source": "/upload", "destination": "/api/product.js" },
+    { "source": "/images/:path*", "destination": "/api/product.js" },
+    { "source": "/addtocart", "destination": "/api/cart.js" },
+    { "source": "/removefromcart", "destination": "/api/cart.js" },
+    { "source": "/getcart", "destination": "/api/cart.js" }
   ]
 }

@@ -5,20 +5,23 @@ const jwt = require("jsonwebtoken");
 const cors = require("cors");
 
 const app = express();
-const port = process.env.PORT || 4003;
-
 app.use(express.json());
 app.use(cors());
 
-mongoose.connect(process.env.MONGODB_URI || "mongodb+srv://shreyasharmavr:shreyasharmavr18@cluster0.be78j07.mongodb.net/e-commerce");
+// Serverless DB Connection
+const connectDB = async () => {
+  if (mongoose.connection.readyState >= 1) return;
+  await mongoose.connect(process.env.MONGODB_URI);
+};
 
-const Users = mongoose.model("Users", {
+// Schema
+const Users = mongoose.models.Users || mongoose.model("Users", new mongoose.Schema({
   name: { type: String },
   email: { type: String, unique: true },
   password: { type: String },
   cartData: { type: Object },
   date: { type: Date, default: Date.now() },
-});
+}));
 
 const fetchuser = async (req, res, next) => {
   const token = req.header("auth-token");
@@ -35,15 +38,15 @@ const fetchuser = async (req, res, next) => {
 };
 
 app.post('/addtocart', fetchuser, async (req, res) => {
-  console.log("Add Cart");
+  await connectDB();
   let userData = await Users.findOne({ _id: req.user.id });
   userData.cartData[req.body.itemId] += 1;
   await Users.findOneAndUpdate({ _id: req.user.id }, { cartData: userData.cartData });
-  res.send("Added")
+  res.send("Added");
 });
 
 app.post('/removefromcart', fetchuser, async (req, res) => {
-  console.log("Remove Cart");
+  await connectDB();
   let userData = await Users.findOne({ _id: req.user.id });
   if (userData.cartData[req.body.itemId] != 0) {
     userData.cartData[req.body.itemId] -= 1;
@@ -53,11 +56,9 @@ app.post('/removefromcart', fetchuser, async (req, res) => {
 });
 
 app.post('/getcart', fetchuser, async (req, res) => {
-  console.log("Get Cart");
+  await connectDB();
   let userData = await Users.findOne({ _id: req.user.id });
   res.json(userData.cartData);
 });
 
-app.listen(port, () => {
-  console.log(`Cart Service listening on port ${port}`);
-});
+module.exports = app;

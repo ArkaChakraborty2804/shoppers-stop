@@ -5,23 +5,26 @@ const jwt = require("jsonwebtoken");
 const cors = require("cors");
 
 const app = express();
-const port = process.env.PORT || 4001;
-
 app.use(express.json());
 app.use(cors());
 
-mongoose.connect(process.env.MONGODB_URI || "mongodb+srv://shreyasharmavr:shreyasharmavr18@cluster0.be78j07.mongodb.net/e-commerce");
+// Serverless DB Connection
+const connectDB = async () => {
+  if (mongoose.connection.readyState >= 1) return;
+  await mongoose.connect(process.env.MONGODB_URI);
+};
 
-const Users = mongoose.model("Users", {
+// Schema
+const Users = mongoose.models.Users || mongoose.model("Users", new mongoose.Schema({
   name: { type: String },
   email: { type: String, unique: true },
   password: { type: String },
   cartData: { type: Object },
   date: { type: Date, default: Date.now() },
-});
+}));
 
 app.post('/login', async (req, res) => {
-  console.log("Login");
+  await connectDB();
   let success = false;
   let user = await Users.findOne({ email: req.body.email });
   if (user) {
@@ -31,18 +34,16 @@ app.post('/login', async (req, res) => {
       success = true;
       const token = jwt.sign(data, process.env.JWT_SECRET || 'secret_ecom');
       res.json({ success, token });
+    } else {
+      return res.status(400).json({ success: success, errors: "please try with correct email/password" });
     }
-    else {
-      return res.status(400).json({ success: success, errors: "please try with correct email/password" })
-    }
-  }
-  else {
-    return res.status(400).json({ success: success, errors: "please try with correct email/password" })
+  } else {
+    return res.status(400).json({ success: success, errors: "please try with correct email/password" });
   }
 });
 
 app.post('/signup', async (req, res) => {
-  console.log("Sign Up");
+  await connectDB();
   let success = false;
   let check = await Users.findOne({ email: req.body.email });
   if (check) {
@@ -65,6 +66,4 @@ app.post('/signup', async (req, res) => {
   res.json({ success, token });
 });
 
-app.listen(port, () => {
-  console.log(`Auth Service listening on port ${port}`);
-});
+module.exports = app;
