@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   api-gateway:
-    build: ./services/api-gateway
+    build: ./backend/services/api-gateway
     ports:
       - "4000:4000"
     environment:
@@ -16,14 +16,14 @@ services:
       - cart-service
 
   auth-service:
-    build: ./services/auth-service
+    build: ./backend/services/auth-service
     environment:
       - PORT=4001
       - MONGODB_URI=${MONGODB_URI}
       - JWT_SECRET=secret_ecom
 
   product-service:
-    build: ./services/product-service
+    build: ./backend/services/product-service
     environment:
       - PORT=4002
       - MONGODB_URI=${MONGODB_URI}
@@ -32,7 +32,7 @@ services:
       - redis
 
   cart-service:
-    build: ./services/cart-service
+    build: ./backend/services/cart-service
     environment:
       - PORT=4003
       - MONGODB_URI=${MONGODB_URI}
